@@ -3,16 +3,14 @@
 public class Ue
 {
     public long Id { get; set; }
-    public string NumeroUe { get; set; } = String.Empty;
-    public string Intitule { get; set; } = String.Empty;
+    public string NumeroUe { get; set; } = string.Empty;
+    public string Intitule { get; set; } = string.Empty;
 
-    // ManyToMany : une Ue est enseignée dnas plusieurs parcours
-    public List<Parcours>? EnseigneeDans { get; set; } = new();
+    public List<Parcours> EnseigneeDans { get; set; } = new();
+
+    // One-to-many : une UE a plusieurs notes
+    public ICollection<Note> Notes { get; set; } = new List<Note>();
 
     public override string ToString()
-    {
-        return "ID "+Id +" : "+NumeroUe+" - "+Intitule;
-    }
-    public ICollection<Note> Notes { get; set; }
-
+        => "ID " + Id + " : " + NumeroUe + " - " + Intitule;
 }

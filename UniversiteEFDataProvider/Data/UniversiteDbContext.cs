@@ -27,48 +27,22 @@ public class UniversiteDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Propriétés de la table Etudiant
-        modelBuilder.Entity<Etudiant>()
-            .HasKey(e => e.Id);
-        modelBuilder.Entity<Etudiant>()
-            .HasOne(e => e.ParcoursSuivi)
-            .WithMany(p => p.Inscrits);
-        modelBuilder.Entity<Etudiant>()
-            .HasMany(e => e.NotesObtenues)
-            .WithOne(n => n.Etudiant);
-
-        // Propriétés de la table Parcours
-        modelBuilder.Entity<Parcours>()
-            .HasKey(p => p.Id);
-        modelBuilder.Entity<Parcours>()
-            .HasMany(p => p.Inscrits)
-            .WithOne(e => e.ParcoursSuivi);
-        modelBuilder.Entity<Parcours>()
-            .HasMany(p => p.UesEnseignees)
-            .WithMany(ue => ue.EnseigneeDans);
-
-        // Propriétés de la table Ue
-        modelBuilder.Entity<Ue>()
-            .HasKey(ue => ue.Id);
-        modelBuilder.Entity<Ue>()
-            .HasMany(ue => ue.EnseigneeDans)
-            .WithMany(p => p.UesEnseignees);
-        modelBuilder.Entity<Ue>()
-            .HasMany(ue => ue.Notes)
-            .WithOne(n => n.notePourUe)
-            .HasForeignKey(n => n.UeId);
-
-        // Propriétés de la table Note
-        modelBuilder.Entity<Note>()
-            .HasKey(n => new { n.EtudiantId, n.UeId });
         modelBuilder.Entity<Note>()
             .HasOne(n => n.Etudiant)
-            .WithMany(e => e.NotesObtenues)
-            .HasForeignKey(n => n.EtudiantId);
+            .WithMany(e => e.Notes)
+            .HasForeignKey(n => n.EtudiantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<Note>()
-            .HasOne(n => n.notePourUe)
-            .WithMany(ue => ue.Notes)
-            .HasForeignKey(n => n.UeId);
+            .HasOne(n => n.Ue)
+            .WithMany(u => u.Notes)
+            .HasForeignKey(n => n.UeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Bonus : empêche 2 notes pour même étudiant dans même UE
+        modelBuilder.Entity<Note>()
+            .HasIndex(n => new { n.EtudiantId, n.UeId })
+            .IsUnique();
     }
     public DbSet <Parcours>? Parcours { get; set; }
     public DbSet <Etudiant>? Etudiants { get; set; }

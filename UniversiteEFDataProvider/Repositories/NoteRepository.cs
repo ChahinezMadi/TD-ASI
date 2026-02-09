@@ -7,39 +7,45 @@ namespace UniversiteEFDataProvider.Repositories;
 
 public class NoteRepository(UniversiteDbContext context) : Repository<Note>(context), INoteRepository
 {
-    public async Task AffecterNoteAsync(long idNote, long idEtudiant, long idUE)
+    public async Task AffecterNoteAsync(long idNote, long idEtudiant, long idUe)
     {
         ArgumentNullException.ThrowIfNull(Context.Notes);
         ArgumentNullException.ThrowIfNull(Context.Etudiants);
         ArgumentNullException.ThrowIfNull(Context.Ues);
 
-        Note n = (await Context.Notes.FindAsync(idNote))!;
-        Etudiant e = (await Context.Etudiants.FindAsync(idEtudiant))!;
-        Ue ue = (await Context.Ues.FindAsync(idUE))!;
+        var note = await Context.Notes.FindAsync(idNote)
+                   ?? throw new InvalidOperationException($"Note {idNote} introuvable.");
 
-        if (n == null || e == null || ue == null)
-        {
-            throw new Exception("Données invalides pour l'affectation.");
-        }
+        var etudiant = await Context.Etudiants.FindAsync(idEtudiant)
+                      ?? throw new InvalidOperationException($"Etudiant {idEtudiant} introuvable.");
 
-        n.recevoirNote?.Add(e);
-        n.notePourUe = ue;
+        var ue = await Context.Ues.FindAsync(idUe)
+                 ?? throw new InvalidOperationException($"UE {idUe} introuvable.");
+
+        //Nouveau modèle : 1 note -> 1 étudiant / 1 UE
+        note.EtudiantId = etudiant.Id;
+        note.Etudiant = etudiant;
+
+        note.UeId = ue.Id;
+        note.Ue = ue;
+
         await Context.SaveChangesAsync();
     }
 
-    public async Task AffecterParcoursAsync(Note note, Parcours parcours)
+    public async Task AffecterParcoursAsync(long idNote, long idParcours)
     {
-        if (note == null)
-        {
-            throw new ArgumentNullException(nameof(note), "La note ne peut pas être nulle.");
-        }
+        ArgumentNullException.ThrowIfNull(Context.Notes);
+        ArgumentNullException.ThrowIfNull(Context.Parcours);
 
-        if (parcours == null)
-        {
-            throw new ArgumentNullException(nameof(parcours), "Le parcours ne peut pas être nul.");
-        }
+        var note = await Context.Notes.FindAsync(idNote)
+                   ?? throw new InvalidOperationException($"Note {idNote} introuvable.");
 
-        note.parcours = parcours;
+        var parcours = await Context.Parcours.FindAsync(idParcours)
+                      ?? throw new InvalidOperationException($"Parcours {idParcours} introuvable.");
+
+        //Optionnel : si tu as ParcoursId/Parcours dans Note
+        note.ParcoursId = parcours.Id;
+        note.Parcours = parcours;
 
         await Context.SaveChangesAsync();
     }
@@ -48,9 +54,8 @@ public class NoteRepository(UniversiteDbContext context) : Repository<Note>(cont
     {
         ArgumentNullException.ThrowIfNull(Context.Notes);
 
-        var note = await Context.Notes
+        return await Context.Notes
+            .AsNoTracking()
             .FirstOrDefaultAsync(n => n.EtudiantId == etudiantId && n.UeId == ueId);
-
-        return note;
     }
 }

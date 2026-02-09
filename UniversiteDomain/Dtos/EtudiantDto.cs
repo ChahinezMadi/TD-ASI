@@ -19,7 +19,7 @@ public class EtudiantDto
         Email = etudiant.Email;
         return this;
     }
-
+    
     public Etudiant ToEntity()
     {
         return new Etudiant {Id = this.Id, NumEtud = this.NumEtud, Nom = this.Nom, Prenom = this.Prenom, Email = this.Email};

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using UniversiteDomain.DataAdapters;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteEFDataProvider.Data;
-using UniversiteEFDataProvider.Repositories;
 using UniversiteEFDataProvider.RepositoryFactories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +11,7 @@ builder.Services.AddControllers();
 // Mis en place d'un annuaire des services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 builder.Services.AddLogging(options =>
-    
 {
     options.ClearProviders();
     options.AddConsole();
