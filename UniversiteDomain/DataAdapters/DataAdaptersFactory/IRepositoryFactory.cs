@@ -1,10 +1,13 @@
-﻿namespace UniversiteDomain.DataAdapters.DataAdaptersFactory;
+﻿using UniversiteDomain.Entities;
+
+namespace UniversiteDomain.DataAdapters.DataAdaptersFactory;
 
 public interface IRepositoryFactory
 {
     IParcoursRepository ParcoursRepository();
     IEtudiantRepository EtudiantRepository();
     IUeRepository UeRepository();
+    INoteRepository CreateNoteRepository();
     
     INoteRepository NoteRepository();
     // Méthodes de gestion de la dadasource
@@ -13,4 +16,6 @@ public interface IRepositoryFactory
     Task EnsureDeletedAsync();
     Task EnsureCreatedAsync();
     Task SaveChangesAsync();
+    Task<object> FindByConditionAsync(Func<object, bool> func);
+    Task<Parcours> CreateAsync(Parcours parcours);
 }

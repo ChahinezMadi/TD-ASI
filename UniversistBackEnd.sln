@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversiteDomain", "Univers
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversiteDomainUnitTests", "UniversiteDomainUnitTests\UniversiteDomainUnitTests.csproj", "{BC7F18C3-6BBF-4E03-98DD-01C07E940E56}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversiteEFDataProvider", "UniversiteEFDataProvider\UniversiteEFDataProvider.csproj", "{FFFE2271-0592-4BD9-831A-C88092D81B0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversiteRestApi", "UniversiteRestApi\UniversiteRestApi.csproj", "{9D78F003-4AC7-4BCF-B670-94177F7F3460}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0B8CE7F0-EE52-4FFB-8E6D-A9B4ABE9ABB0} = {92E64CAA-BC8B-4776-AFF8-24F918556141}
 		{BC7F18C3-6BBF-4E03-98DD-01C07E940E56} = {7FAE5119-212E-4350-A186-57C51DB7416D}
+		{FFFE2271-0592-4BD9-831A-C88092D81B0A} = {915F0829-60AC-48D9-8254-07883445F5D5}
+		{9D78F003-4AC7-4BCF-B670-94177F7F3460} = {077CCCF6-490A-4B2D-A6DD-F3FCD5C499CD}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0B8CE7F0-EE52-4FFB-8E6D-A9B4ABE9ABB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,5 +36,13 @@ Global
 		{BC7F18C3-6BBF-4E03-98DD-01C07E940E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC7F18C3-6BBF-4E03-98DD-01C07E940E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC7F18C3-6BBF-4E03-98DD-01C07E940E56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFFE2271-0592-4BD9-831A-C88092D81B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFFE2271-0592-4BD9-831A-C88092D81B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFFE2271-0592-4BD9-831A-C88092D81B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFFE2271-0592-4BD9-831A-C88092D81B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D78F003-4AC7-4BCF-B670-94177F7F3460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D78F003-4AC7-4BCF-B670-94177F7F3460}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D78F003-4AC7-4BCF-B670-94177F7F3460}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D78F003-4AC7-4BCF-B670-94177F7F3460}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

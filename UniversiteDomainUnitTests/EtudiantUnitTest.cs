@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Moq;
+using NUnit.Framework;
 using UniversiteDomain.DataAdapters;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
@@ -9,54 +10,73 @@ namespace UniversiteDomainUnitTests;
 
 public class EtudiantUnitTest
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
-
     [Test]
-    public async Task CreateEtudiantUseCase()
+    public async Task CreateEtudiantUseCase_CreeEtudiant_SiPasDeDoublon()
     {
+        // Arrange
         long id = 1;
         string numEtud = "et1";
         string nom = "Durant";
         string prenom = "Jean";
         string email = "jean.durant@etud.u-picardie.fr";
 
-        // On crée l'étudiant qui doit être ajouté en base (sans Id)
-        Etudiant etudiantSansId = new Etudiant { NumEtud = numEtud, Nom = nom, Prenom = prenom, Email = email };
+        var etudiantSansId = new Etudiant
+        {
+            NumEtud = numEtud,
+            Nom = nom,
+            Prenom = prenom,
+            Email = email
+        };
 
-        // Création du mock du repository Etudiant
+        var etudiantCree = new Etudiant
+        {
+            Id = id,
+            NumEtud = numEtud,
+            Nom = nom,
+            Prenom = prenom,
+            Email = email
+        };
+
+        // Mock du repository Etudiant
         var mockEtudiantRepo = new Mock<IEtudiantRepository>();
 
-        // Simulation de la fonction FindByConditionAsync : l'étudiant n'existe pas
+        // FindByConditionAsync -> renvoie liste vide (pas de doublon numEtud / email)
         mockEtudiantRepo
-            .Setup(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Etudiant, bool>>>()))
+            .Setup(r => r.FindByConditionAsync(It.IsAny<Expression<Func<Etudiant, bool>>>()))
             .ReturnsAsync(new List<Etudiant>());
 
-        // Simulation de CreateAsync : on retourne l'étudiant avec un Id
-        Etudiant etudiantCree = new Etudiant { Id = id, NumEtud = numEtud, Nom = nom, Prenom = prenom, Email = email };
+        // CreateAsync -> renvoie l'étudiant avec un Id
         mockEtudiantRepo
-            .Setup(repo => repo.CreateAsync(etudiantSansId))
+            .Setup(r => r.CreateAsync(It.IsAny<Etudiant>()))
             .ReturnsAsync(etudiantCree);
 
-        // Création du mock de la factory
+        // SaveChangesAsync -> fait rien (mais doit exister)
+        mockEtudiantRepo
+            .Setup(r => r.SaveChangesAsync())
+            .Returns(Task.CompletedTask);
+
+        // Mock de la factory
         var mockFactory = new Mock<IRepositoryFactory>();
         mockFactory
-            .Setup(factory => factory.EtudiantRepository())
+            .Setup(f => f.EtudiantRepository())
             .Returns(mockEtudiantRepo.Object);
 
-        // Création du use case en utilisant la factory mockée
-        CreateEtudiantUseCase useCase = new CreateEtudiantUseCase(mockFactory.Object);
+        // Use case avec factory mockée
+        var useCase = new CreateEtudiantUseCase(mockFactory.Object);
 
-        // Appel du use case
+        // Act
         var etudiantTeste = await useCase.ExecuteAsync(etudiantSansId);
 
-        // Vérification du résultat
+        // Assert (valeurs)
         Assert.That(etudiantTeste.Id, Is.EqualTo(etudiantCree.Id));
         Assert.That(etudiantTeste.NumEtud, Is.EqualTo(etudiantCree.NumEtud));
         Assert.That(etudiantTeste.Nom, Is.EqualTo(etudiantCree.Nom));
         Assert.That(etudiantTeste.Prenom, Is.EqualTo(etudiantCree.Prenom));
         Assert.That(etudiantTeste.Email, Is.EqualTo(etudiantCree.Email));
+
+        // Assert (appels)
+        mockEtudiantRepo.Verify(r => r.CreateAsync(It.IsAny<Etudiant>()), Times.Once);
+        mockEtudiantRepo.Verify(r => r.SaveChangesAsync(), Times.Once);
+        mockFactory.Verify(f => f.EtudiantRepository(), Times.AtLeastOnce);
     }
 }

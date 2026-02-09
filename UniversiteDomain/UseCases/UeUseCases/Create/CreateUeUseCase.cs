@@ -2,49 +2,44 @@
 using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.UeExceptions;
 
-namespace UniversiteDomain.UseCases.UeUseCases.Create
+namespace UniversiteDomain.UseCases.UeUseCases.Create;
+
+public class CreateUeUseCase(IRepositoryFactory repositoryFactory)
 {
-    public class CreateUeUseCase(IRepositoryFactory repositoryFactory)
+    public async Task<Ue> ExecuteAsync(string numeroUe, string intitule)
     {
-        public async Task<Ue> ExecuteAsync(string numero, string intitule)
-        {
-            var ue = new Ue { NumeroUe = numero, Intitule = intitule };
-            return await ExecuteAsync(ue);
-        }
+        var ue = new Ue { NumeroUe = numeroUe, Intitule = intitule };
+        return await ExecuteAsync(ue);
+    }
 
-        public async Task<Ue> ExecuteAsync(Ue ue)
-        {
-            await CheckBusinessRules(ue);
+    public async Task<Ue> ExecuteAsync(Ue ue)
+    {
+        await CheckBusinessRules(ue);
 
-            var repo = repositoryFactory.UeRepository();
+        var repo = repositoryFactory.UeRepository();
 
-            Ue created = await repo.CreateAsync(ue);
+        Ue created = await repo.CreateAsync(ue);
+        repositoryFactory.SaveChangesAsync().Wait(); // même style que CreateParcoursUseCase
 
-            repositoryFactory.SaveChangesAsync().Wait(); // cohérent avec ton style existant
+        return created;
+    }
 
-            return created;
-        }
+    private async Task CheckBusinessRules(Ue ue)
+    {
+        ArgumentNullException.ThrowIfNull(ue);
+        ArgumentNullException.ThrowIfNull(ue.NumeroUe);
+        ArgumentNullException.ThrowIfNull(ue.Intitule);
 
-        private async Task CheckBusinessRules(Ue ue)
-        {
-            ArgumentNullException.ThrowIfNull(ue);
-            ArgumentNullException.ThrowIfNull(ue.NumeroUe);
-            ArgumentNullException.ThrowIfNull(ue.Intitule);
+        ArgumentNullException.ThrowIfNull(repositoryFactory);
+        ArgumentNullException.ThrowIfNull(repositoryFactory.UeRepository());
 
-            var repo = repositoryFactory.UeRepository();
+        var repo = repositoryFactory.UeRepository();
 
-            // Vérifier unicité du numéro d'UE
-            var existe = await repo.FindByConditionAsync(u =>
-                u.NumeroUe.Equals(ue.NumeroUe));
+        var existing = await repo.FindByConditionAsync(u => u.NumeroUe == ue.NumeroUe);
+        if (existing is { Count: > 0 })
+            throw new DuplicateUeDansParcoursException("Unité d'enseignement avec ce numéro existe déjà.");
 
-            if (existe is { Count: > 0 })
-                throw new DuplicateNumeroUeException(
-                    $"{ue.NumeroUe} - ce numéro d'UE existe déjà");
-
-            // Vérifier longueur intitulé
-            if (ue.Intitule.Length <= 3)
-                throw new InvalidIntituleUeException(
-                    $"{ue.Intitule} incorrect - l'intitulé doit contenir plus de 3 caractères");
-        }
+        if (ue.Intitule.Length < 3)
+            throw new UeNotFoundException("L'intitulé de l'UE doit contenir au moins 3 caractères.");
     }
 }

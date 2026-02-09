@@ -18,4 +18,7 @@ public class Etudiant
     {
         return $"ID {Id} : {NumEtud} - {Nom} {Prenom} inscrit en "+ParcoursSuivi;
     }    
+    public ICollection<Note> Notes { get; set; } = new List<Note>();
+    public ICollection<Note> NotesObtenues { get; set; } = new List<Note>();
+    public List<Ue> Ues { get; set; } = new List<Ue>();
 }
