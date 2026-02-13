@@ -52,4 +52,8 @@ public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
             throw new InvalidAnneeFormationException(
                 parcours.AnneeFormation + " incorrecte - L'année de formation doit être comprise entre 1 et 5");
     }
+    public bool IsAuthorized(string role)
+    {
+        return role.Equals(Roles.Responsable) || role.Equals(Roles.Scolarite);
+    }
 }

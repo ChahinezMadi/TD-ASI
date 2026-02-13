@@ -8,6 +8,8 @@ public interface IRepositoryFactory
     IEtudiantRepository EtudiantRepository();
     IUeRepository UeRepository();
     INoteRepository CreateNoteRepository();
+    IUniversiteRoleRepository UniversiteRoleRepository();
+    IUniversiteUserRepository UniversiteUserRepository();
     
     INoteRepository NoteRepository();
     // Méthodes de gestion de la dadasource
