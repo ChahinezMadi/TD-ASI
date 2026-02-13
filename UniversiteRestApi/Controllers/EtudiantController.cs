@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UniversiteDomain.Entities;
-using UniversiteDomain.UseCases.EtudiantUseCases.Create;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Dtos;
+using UniversiteDomain.Entities;
+using UniversiteDomain.UseCases.EtudiantUseCases.Create;
 
 namespace UniversiteRestApi.Controllers
 {
@@ -11,52 +10,40 @@ namespace UniversiteRestApi.Controllers
     [ApiController]
     public class EtudiantController(IRepositoryFactory repositoryFactory) : ControllerBase
     {
-        // GET: api/<EtudiantController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        // GET api/Etudiant/5
+        [HttpGet("{id:long}")]
+        public async Task<ActionResult<EtudiantDto>> GetUnEtudiant(long id)
         {
-            return new string[] { "value1", "value2" };
+            var repo = repositoryFactory.EtudiantRepository();
+            var etudiant = await repo.FindAsync(id);
+
+            if (etudiant == null)
+                return NotFound();
+
+            return Ok(new EtudiantDto().ToDto(etudiant));
         }
 
-        // GET api/<EtudiantController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-// POST api/<EtudiantController>
+        //POST api/Etudiant
         [HttpPost]
         public async Task<ActionResult<EtudiantDto>> PostAsync([FromBody] EtudiantDto etudiantDto)
         {
-            CreateEtudiantUseCase createEtudiantUc = new CreateEtudiantUseCase(repositoryFactory);           
+            var createEtudiantUc = new CreateEtudiantUseCase(repositoryFactory);
             Etudiant etud = etudiantDto.ToEntity();
+
             try
             {
                 etud = await createEtudiantUc.ExecuteAsync(etud);
             }
             catch (Exception e)
             {
-                // On récupère ici les exceptions personnalisées définies dans la couche domain
-                // Et on les envoie avec le code d'erreur 400 et l'intitulé "erreurs de validation"
                 ModelState.AddModelError(nameof(e), e.Message);
                 return ValidationProblem();
             }
+
             EtudiantDto dto = new EtudiantDto().ToDto(etud);
-            // On revoie la route vers le get qu'on n'a pas encore écrit! //erreeeeeuuuurrrr à corriger
+
+            // GetUnEtudiant existe + route cohérente (id long)
             return CreatedAtAction(nameof(GetUnEtudiant), new { id = dto.Id }, dto);
-        }
-
-        // PUT api/<EtudiantController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<EtudiantController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
