@@ -3,6 +3,7 @@ namespace UniversiteDomain.DataAdapters;
 
 public interface IEtudiantRepository : IRepository<Etudiant>
 {
+    Task<Etudiant?> FindEtudiantCompletAsync(long idEtudiant);
     Task<Etudiant?> GetByNumEtudAsync(string numEtud);
     Task<IEnumerable<Etudiant>> GetByParcoursAsync(long idParcours);
 

@@ -7,6 +7,15 @@ namespace UniversiteEFDataProvider.Repositories;
 
 public class EtudiantRepository(UniversiteDbContext context) : Repository<Etudiant>(context), IEtudiantRepository
 {
+    
+    public async Task<Etudiant?> FindEtudiantCompletAsync(long idEtudiant)
+    {
+        ArgumentNullException.ThrowIfNull(Context.Etudiants);
+        return await Context.Etudiants
+            .Include(e => e.ParcoursSuivi)             
+            .Include(e => e.Notes).ThenInclude(n => n.Ue)
+            .FirstOrDefaultAsync(e => e.Id == idEtudiant);
+    }
     public async Task AffecterParcoursAsync(long idEtudiant, long idParcours)
     {
         ArgumentNullException.ThrowIfNull(Context.Etudiants);

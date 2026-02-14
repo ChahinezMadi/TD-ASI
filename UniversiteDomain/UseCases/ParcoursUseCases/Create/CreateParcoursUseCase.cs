@@ -43,9 +43,9 @@ public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
                 parcours.NomParcours + " (" + parcours.AnneeFormation + ") - ce parcours existe déjà");
 
         // Règle métier : le nom du parcours doit contenir plus de 3 caractères
-        if (parcours.NomParcours.Length < 3)
+        if (parcours.NomParcours.Length < 2)
             throw new InvalidNomParcoursException(
-                parcours.NomParcours + " incorrect - Le nom d'un parcours doit contenir plus de 3 caractères");
+                parcours.NomParcours + " incorrect - Le nom d'un parcours doit contenir plus de 2 caractères");
 
         // Règle métier : l’année de formation doit être entre 1 et 5
         if (parcours.AnneeFormation < 1 || parcours.AnneeFormation > 5)

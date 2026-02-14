@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="Exceptions\NoteExceptions\" />
-      <Folder Include="UseCases\EtudiantUseCases\Delete\" />
       <Folder Include="UseCases\ParcoursUseCases\Delete\" />
       <Folder Include="UseCases\ParcoursUseCases\Get\" />
       <Folder Include="UseCases\ParcoursUseCases\Update\" />

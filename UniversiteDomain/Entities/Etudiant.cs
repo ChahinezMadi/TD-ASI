@@ -13,7 +13,7 @@ public class Etudiant
     public Parcours? ParcoursSuivi { get; set; }
 
     // One-to-many : un étudiant a plusieurs notes
-    public ICollection<Note> Notes { get; set; } = new List<Note>();
+    public List<Note> Notes { get; set; } = new List<Note>();
 
     public List<Ue> Ues { get; set; } = new List<Ue>();
 
