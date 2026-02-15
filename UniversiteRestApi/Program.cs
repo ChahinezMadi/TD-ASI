@@ -48,17 +48,15 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-/////////////////// Fin config Swagger
-
-////////////// Config système de log en console
+// Fin config Swagger
+// Config système de log en console
 builder.Services.AddLogging(options =>
 {
     options.ClearProviders();
     options.AddConsole();
 });
-////////////////////Fin Log
-
-///////////// Configuration des connexions à MySql
+//Fin Log
+// Configuration des connexions à MySql
 String connectionString = builder.Configuration.GetConnectionString("MySqlConnection") ?? throw new InvalidOperationException("Connection string 'MySqlConnection' not found.");
 
 // Création du contexte de la base de données en utilisant la connexion MySql que l'on vient de définir
@@ -115,11 +113,12 @@ app.UseSwaggerUI();
 
 // Configuration du serveur Web
 app.UseHttpsRedirection();
-app.MapControllers();
 
-// Sécurisation
+// Sécurisation (DOIT être avant MapControllers)
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 // Initialisation de la base de données
 ILogger logger = app.Services.GetRequiredService<ILogger<BdBuilder>>();
