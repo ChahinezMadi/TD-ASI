@@ -2,6 +2,8 @@
 using UniversiteDomain.DataAdapters;
 using UniversiteDomain.Entities;
 using UniversiteEFDataProvider.Data;
+using Microsoft.EntityFrameworkCore;
+using UniversiteDomain.Dtos.BulkNotes;
 
 namespace UniversiteEFDataProvider.Repositories;
 
@@ -122,4 +124,94 @@ public class EtudiantRepository(UniversiteDbContext context) : Repository<Etudia
             .Where(e => e.ParcoursSuivi!.Id == idParcours)
             .ToListAsync();
     }
+    public async Task<List<BulkNoteCsvRowDto>> GetCsvTemplateRowsForUeAsync(long idUe)
+    {
+        // On récupère l'UE
+        var ue = await Context.Ues!.FirstOrDefaultAsync(u => u.Id == idUe);
+        if (ue == null) throw new Exception("UE introuvable.");
+
+        // Tous les étudiants dont le parcours enseigne l'UE
+        var etudiants = await Context.Etudiants!
+            .Include(e => e.ParcoursSuivi)
+            .ThenInclude(p => p.UesEnseignees)
+            .Where(e => e.ParcoursSuivi != null &&
+                        e.ParcoursSuivi.UesEnseignees.Any(u => u.Id == idUe))
+            .ToListAsync();
+
+        // Notes existantes pour cette UE
+        var notes = await Context.Notes!
+            .Where(n => n.UeId == idUe)
+            .ToListAsync();
+
+        var noteByEtudId = notes.ToDictionary(n => n.EtudiantId, n => n.Value);
+
+        return etudiants
+            .OrderBy(e => e.Nom).ThenBy(e => e.Prenom)
+            .Select(e => new BulkNoteCsvRowDto
+            {
+                NumeroUe = ue.NumeroUe,
+                IntituleUe = ue.Intitule,
+                NumEtud = e.NumEtud,
+                Nom = e.Nom,
+                Prenom = e.Prenom,
+                Note = noteByEtudId.TryGetValue(e.Id, out var val) ? val.ToString() : null
+            })
+            .ToList();
+    }
+    public async Task ApplyNotesForUeAsync(long idUe, List<(long etudiantId, decimal? note)> notes)
+    {
+        using var trx = await Context.Database.BeginTransactionAsync();
+
+        try
+        {
+            foreach (var (idEtud, noteVal) in notes)
+            {
+                var existing = await Context.Notes!
+                    .FirstOrDefaultAsync(n => n.EtudiantId == idEtud && n.UeId == idUe);
+
+                if (noteVal == null)
+                {
+                    // Choix métier : si vide, on supprime la note existante (option).
+                    // Si tu préfères "ne rien changer", remplace par "continue;"
+                    if (existing != null)
+                        Context.Notes.Remove(existing);
+                    continue;
+                }
+
+                if (existing == null)
+                {
+                    Context.Notes.Add(new Note
+                    {
+                        EtudiantId = idEtud,
+                        UeId = idUe,
+                        Value = (double)noteVal.Value
+                    });
+                }
+                else
+                {
+                    existing.Value = (double)noteVal.Value;
+                }
+            }
+
+            await Context.SaveChangesAsync();
+            await trx.CommitAsync();
+        }
+        catch
+        {
+            await trx.RollbackAsync();
+            throw;
+        }
+    }
+    public async Task<List<Etudiant>> GetEtudiantsByUeAsync(long ueId)
+    {
+        ArgumentNullException.ThrowIfNull(Context.Etudiants);
+
+        return await Context.Etudiants
+            .Include(e => e.Notes)
+            .ThenInclude(n => n.Ue)
+            .Include(e => e.Ues) // si ta relation Etudiant<->Ue existe déjà en base
+            .Where(e => e.Ues.Any(u => u.Id == ueId))
+            .ToListAsync();
+    }
+
 }

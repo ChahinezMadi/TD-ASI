@@ -1,4 +1,5 @@
-﻿using UniversiteDomain.Entities;
+﻿using UniversiteDomain.Dtos.BulkNotes;
+using UniversiteDomain.Entities;
 namespace UniversiteDomain.DataAdapters;
 
 public interface IEtudiantRepository : IRepository<Etudiant>
@@ -18,4 +19,8 @@ public interface IEtudiantRepository : IRepository<Etudiant>
     Task<Etudiant> AddUeAsync(long idEtudiant, long[] idUes);
     Task AffecterParcoursAsync(long idEtudiant, long idParcours);
     Task AffecterParcoursAsync(Etudiant etudiant, Parcours parcours);
+    Task<List<BulkNoteCsvRowDto>> GetCsvTemplateRowsForUeAsync(long idUe);
+    Task ApplyNotesForUeAsync(long idUe, List<(long etudiantId, decimal? note)> notes);
+    Task<List<Etudiant>> GetEtudiantsByUeAsync(long ueId);
+
 }
